@@ -27,11 +27,11 @@ typedef struct binary_tree_s heap_t;
 typedef struct binary_tree_s bst_t;
 typedef struct binary_tree_s avl_t;
 
-typedef struct L-order_queue_s
+typedef struct L_order_queue_s
 {
 	binary_tree_t *node;
-	struct L-order_queue_s *next;
-} L-order_queue_t;
+	struct L_order_queue_s *next;
+} L_order_queue_t;
 
 /*  help func */
 void binary_tree_print(const binary_tree_t *);
