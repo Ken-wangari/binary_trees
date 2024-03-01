@@ -1,30 +1,24 @@
 #include "binary_trees.h"
 
-levelorder_queue_t *create_node(binary_tree_t *node);
-void pop(levelorder_queue_t **head);
-int binary_tree_is_complete(const binary_tree_t *tree);
-void free_queue(levelorder_queue_t *head);
-void push(binary_tree_t *node, levelorder_queue_t *head, levelorder_queue_t **tail);
-
 /**
- * create_node - Creates a new node for a level-order traversal queue.
- * @node: The binary tree node to assign to the new node.
+ * create_node - Creates a new levelorder_queue_t node.
+ * @node: The binary tree node for the new node to contain.
  *
- * Return: A pointer to the newly created node, or NULL on failure.
+ * Return: If an error occurs, NULL.
+ *         Otherwise, a pointer to the new node.
  */
 levelorder_queue_t *create_node(binary_tree_t *node)
 {
-    levelorder_queue_t *new_node = malloc(sizeof(levelorder_queue_t));
-    if (!new_node)
-    {
-        perror("Memory allocation failed");
-        exit(EXIT_FAILURE);
-    }
+    levelorder_queue_t *new;
 
-    new_node->node = node;
-    new_node->next = NULL;
+    new = malloc(sizeof(levelorder_queue_t));
+    if (new == NULL)
+        return (NULL);
 
-    return new_node;
+    new->node = node;
+    new->next = NULL;
+
+    return (new);
 }
 
 /**
@@ -33,100 +27,73 @@ levelorder_queue_t *create_node(binary_tree_t *node)
  */
 void free_queue(levelorder_queue_t *head)
 {
-    while (head)
+    levelorder_queue_t *tmp;
+
+    while (head != NULL)
     {
-        levelorder_queue_t *tmp = head;
-        head = head->next;
-        free(tmp);
+        tmp = head->next;
+        free(head);
+        head = tmp;
     }
 }
+
 /**
- * push - Enqueues a node to the back of the queue.
- * @node: The binary tree node to enqueue.
- * @rear: A pointer to the rear of the queue.
+ * push - Pushes a node to the back of a levelorder_queue_t queue.
+ * @node: The binary tree node to print and push.
+ * @head: A double pointer to the head of the queue.
+ * @tail: A double pointer to the tail of the queue.
+ *
+ * Description: Upon malloc failure, exits with a status code of 1.
  */
-void push(const binary_tree_t *node, queue_node_t **rear)
+void push(binary_tree_t *node, levelorder_queue_t *head,
+          levelorder_queue_t **tail)
 {
-    queue_node_t *new = malloc(sizeof(queue_node_t));
+    levelorder_queue_t *new;
+
+    new = create_node(node);
     if (new == NULL)
     {
-        perror("Memory allocation failed");
-        exit(EXIT_FAILURE);
+        free_queue(head);
+        exit(1);
     }
-
-    new->node = node;
-    new->next = NULL;
-
-    (*rear)->next = new;
-    *rear = new;
+    (*tail)->next = new;
+    *tail = new;
 }
 
 /**
- * pop - Dequeues the front of the queue.
- * @front: A double pointer to the front of the queue.
+ * pop - Pops the head of a levelorder_queue_t queue.
+ * @head: A double pointer to the head of the queue.
  */
-void pop(queue_node_t **front)
+void pop(levelorder_queue_t **head)
 {
-    queue_node_t *tmp = (*front)->next;
-    free(*front);
-    *front = tmp;
+    levelorder_queue_t *tmp;
+
+    tmp = (*head)->next;
+    free(*head);
+    *head = tmp;
 }
 
 /**
  * binary_tree_is_complete - Checks if a binary tree is complete.
- * @tree: A pointer to the root node of the tree to check.
+ * @tree: A pointer to the root node of the tree.
  *
  * Return: If the tree is NULL or not complete, 0.
  *         Otherwise, 1.
+ *
+ * Description: This function checks if the binary tree is complete
+ *              without using an explicit queue.
  */
 int binary_tree_is_complete(const binary_tree_t *tree)
 {
     if (tree == NULL)
-        return 0;
+        return (0);
 
-    queue_node_t *front = malloc(sizeof(queue_node_t));
-    queue_node_t *rear = front;
+    if (tree->left == NULL && tree->right == NULL)
+        return (1);
 
-    front->node = tree;
-    front->next = NULL;
+    if (tree->left == NULL || tree->right == NULL)
+        return (0);
 
-    int flag = 0;
-
-    while (front != NULL)
-    {
-        const binary_tree_t *current = front->node;
-
-        if (current->left != NULL)
-        {
-            if (flag == 1)
-            {
-                free(front);
-                return 0;
-            }
-            push(current->left, &rear);
-        }
-        else
-        {
-            flag = 1;
-        }
-
-        if (current->right != NULL)
-        {
-            if (flag == 1)
-            {
-                free(front);
-                return 0;
-            }
-            push(current->right, &rear);
-        }
-        else
-        {
-            flag = 1;
-        }
-
-        pop(&front);
-    }
-
-    free(front);
-    return 1;
+    return (binary_tree_is_complete(tree->left) && binary_tree_is_complete(tree->right));
 }
+
