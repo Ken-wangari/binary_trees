@@ -5,32 +5,24 @@
  *
  * @node: pointer node
  * @array: input array of integers
- * @size: size of array
- * @mode: 1 to adding on the left, 2 to adding on the right
+ * @start: start index of the current array segment
+ * @end: end index of the current array segment
  * Return: no return
  */
-void create_tree(avl_t **node, int *array, size_t size, int mode)
+void create_tree(avl_t **node, int *array, size_t start, size_t end)
 {
-	size_t middle;
+    if (start > end)
+        return;
 
-	if (size == 0)
-		return;
+    size_t middle = (start + end) / 2;
 
-	middle = (size / 2);
-	middle = (size % 2 == 0) ? middle - 1 : middle;
+    (*node) = binary_tree_node(NULL, array[middle]);
 
-	if (mode == 1)
-	{
-		(*node)->left = binary_tree_node(*node, array[middle]);
-		create_tree(&((*node)->left), array, middle, 1);
-		create_tree(&((*node)->left), array + middle + 1, (size - 1 - middle), 2);
-	}
-	else
-	{
-		(*node)->right = binary_tree_node(*node, array[middle]);
-		create_tree(&((*node)->right), array, middle, 1);
-		create_tree(&((*node)->right), array + middle + 1, (size - 1 - middle), 2);
-	}
+    if (*node == NULL)
+        return;
+
+    create_tree(&((*node)->left), array, start, middle - 1);
+    create_tree(&((*node)->right), array, middle + 1, end);
 }
 
 /**
@@ -42,22 +34,13 @@ void create_tree(avl_t **node, int *array, size_t size, int mode)
  */
 avl_t *sorted_array_to_avl(int *array, size_t size)
 {
-	avl_t *root;
-	size_t middle;
+    if (array == NULL || size == 0)
+        return (NULL);
 
-	root = NULL;
+    avl_t *root = NULL;
 
-	if (size == 0)
-		return (NULL);
+    create_tree(&root, array, 0, size - 1);
 
-	middle = (size / 2);
-
-	middle = (size % 2 == 0) ? middle - 1 : middle;
-
-	root = binary_tree_node(root, array[middle]);
-
-	create_tree(&root, array, middle, 1);
-	create_tree(&root, array + middle + 1, (size - 1 - middle), 2);
-
-	return (root);
+    return root;
 }
+
