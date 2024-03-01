@@ -2,8 +2,8 @@
 
 bst_t *inorder_successor(bst_t *root);
 bst_t *bst_delete(bst_t *root, bst_t *node);
-bst_t *bst_remove(bst_t *root, int value);
 bst_t *bst_remove_recursive(bst_t *root, bst_t *node, int value);
+bst_t *bst_remove(bst_t *root, int value);
 
 /**
  * inorder_successor - Returns the minimum value of a binary search tree.
@@ -13,13 +13,9 @@ bst_t *bst_remove_recursive(bst_t *root, bst_t *node, int value);
  */
 bst_t *inorder_successor(bst_t *root)
 {
-    if (root == NULL)
-        return NULL;
-
-    while (root->left)
-        root = root->left;
-
-    return root;
+	while (root->left != NULL)
+		root = root->left;
+	return (root);
 }
 
 /**
@@ -29,55 +25,41 @@ bst_t *inorder_successor(bst_t *root)
  *
  * Return: A pointer to the new root node after deletion.
  */
-
 bst_t *bst_delete(bst_t *root, bst_t *node)
 {
-    if (node == NULL)
-        return root;
+	bst_t *parent = node->parent, *successor = NULL;
 
-    bst_t *parent = node->parent, *successor = NULL;
+	/* No children or right-child only */
+	if (node->left == NULL)
+	{
+		if (parent != NULL && parent->left == node)
+			parent->left = node->right;
+		else if (parent != NULL)
+			parent->right = node->right;
+		if (node->right != NULL)
+			node->right->parent = parent;
+		free(node);
+		return (parent == NULL ? node->right : root);
+	}
 
-    /* No children or right-child only */
-    if (node->left == NULL)
-    {
-        if (parent != NULL)
-        {
-            if (parent->left == node)
-                parent->left = node->right;
-            else
-                parent->right = node->right;
-        }
+	/* Left-child only */
+	if (node->right == NULL)
+	{
+		if (parent != NULL && parent->left == node)
+			parent->left = node->left;
+		else if (parent != NULL)
+			parent->right = node->left;
+		if (node->left != NULL)
+			node->left->parent = parent;
+		free(node);
+		return (parent == NULL ? node->left : root);
+	}
 
-        if (node->right != NULL)
-            node->right->parent = parent;
+	/* Two children */
+	successor = inorder_successor(node->right);
+	node->n = successor->n;
 
-        free(node);
-        return (parent == NULL ? node->right : root);
-    }
-
-    /* Left-child only */
-    if (node->right == NULL)
-    {
-        if (parent != NULL)
-        {
-            if (parent->left == node)
-                parent->left = node->left;
-            else
-                parent->right = node->left;
-        }
-
-        if (node->left != NULL)
-            node->left->parent = parent;
-
-        free(node);
-        return (parent == NULL ? node->left : root);
-    }
-
-    /* Two children */
-    successor = inorder_successor(node->right);
-    node->n = successor->n;
-
-    return bst_delete(root, successor);
+	return (bst_delete(root, successor));
 }
 
 /**
@@ -90,15 +72,15 @@ bst_t *bst_delete(bst_t *root, bst_t *node)
  */
 bst_t *bst_remove_recursive(bst_t *root, bst_t *node, int value)
 {
-    if (node == NULL)
-        return root;
-
-    if (node->n == value)
-        return bst_delete(root, node);
-    else if (node->n > value)
-        return bst_remove_recursive(root, node->left, value);
-    else
-        return bst_remove_recursive(root, node->right, value);
+	if (node != NULL)
+	{
+		if (node->n == value)
+			return (bst_delete(root, node));
+		if (node->n > value)
+			return (bst_remove_recursive(root, node->left, value));
+		return (bst_remove_recursive(root, node->right, value));
+	}
+	return (NULL);
 }
 
 /**
@@ -113,6 +95,5 @@ bst_t *bst_remove_recursive(bst_t *root, bst_t *node, int value)
  */
 bst_t *bst_remove(bst_t *root, int value)
 {
-    return bst_remove_recursive(root, root, value);
+	return (bst_remove_recursive(root, root, value));
 }
-
