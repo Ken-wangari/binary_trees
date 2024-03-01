@@ -1,20 +1,39 @@
 #include "binary_trees.h"
 
 /**
- * bst_search -  Function searches for a value in agiven  binary search tree.
- * @tree: pointer that points to the root node of the BST to search.
- * @value: value to search for in the BST.
+ * binary_tree_rotate_left - Performs a left-rotation on a binary tree.
+ * @tree: A pointer to the root node of the tree to rotate.
  *
+ * Return: A pointer to the new root after rotation.
+ *         NULL if tree is NULL or the rotation fails.
  */
-bst_t *bst_search(const bst_t *tree, int value)
+binary_tree_t *binary_tree_rotate_left(binary_tree_t *tree)
 {
-	if (tree != NULL)
+	binary_tree_t *pivot, *tmp;
+
+	if (tree == NULL || tree->right == NULL)
+		return (NULL);
+
+	pivot = tree->right;
+	tmp = pivot->left;
+	pivot->left = tree;
+	tree->right = tmp;
+
+	if (tmp != NULL)
+		tmp->parent = tree;
+
+	tmp = tree->parent;
+	tree->parent = pivot;
+	pivot->parent = tmp;
+
+	if (tmp != NULL)
 	{
-		if (tree->n == value)
-			return ((bst_t *)tree);
-		if (tree->n > value)
-			return (bst_search(tree->left, value));
-		return (bst_search(tree->right, value));
+		if (tmp->left == tree)
+			tmp->left = pivot;
+		else
+			tmp->right = pivot;
 	}
-	return (NULL);
+
+	return (pivot);
 }
+
