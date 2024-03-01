@@ -2,53 +2,60 @@
 
 /**
  * binary_tree_height - Measures the height of a binary tree.
- * @tree: A pointer to the root node of the tree.
+ * @tree: A pointer to the root node of the tree to measure the height.
  *
- * Return: Height of the tree, 0 if the tree is NULL.
+ * Return: If tree is NULL, your function must return 0, else return height.
  */
 size_t binary_tree_height(const binary_tree_t *tree)
 {
-	if (tree == NULL)
-		return (0);
+	if (tree)
+	{
+		size_t l = 0, r = 0;
 
-	size_t left_height = binary_tree_height(tree->left);
-	size_t right_height = binary_tree_height(tree->right);
-
-	return (1 + (left_height > right_height ? left_height : right_height));
+		l = tree->left ? 1 + binary_tree_height(tree->left) : 1;
+		r = tree->right ? 1 + binary_tree_height(tree->right) : 1;
+		return ((l > r) ? l : r);
+	}
+	return (0);
 }
 
 /**
- * binary_tree_size - Measures the size of a binary tree.
- * @tree: A pointer to the root node of the tree.
+ * is_perfect_recursive - Checks if a binary tree is perfect recursively.
+ * @tree: A pointer to the root node of the tree to check.
+ * @height: The height of the binary tree.
+ * @level: Level of the current node.
  *
- * Return: Size of the tree, 0 if the tree is NULL.
+ * Return: If the tree is perfect, 1, otherwise 0.
  */
-size_t binary_tree_size(const binary_tree_t *tree)
+int is_perfect_recursive(const binary_tree_t *tree, size_t height, size_t level)
 {
 	if (tree == NULL)
+		return (1);
+
+	if (tree->left == NULL && tree->right == NULL)
+		return (level == height);
+
+	if (tree->left == NULL || tree->right == NULL)
 		return (0);
 
-	return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+	return (is_perfect_recursive(tree->left, height, level + 1) &&
+	        is_perfect_recursive(tree->right, height, level + 1));
 }
 
 /**
  * binary_tree_is_perfect - Checks if a binary tree is perfect.
- * @tree: A pointer to the root node of the tree.
+ * @tree: A pointer to the root node of the tree to check.
  *
- * Return: 1 if perfect, 0 otherwise.
+ * Return: If tree is NULL or not perfect, 0. Otherwise, 1.
  */
 int binary_tree_is_perfect(const binary_tree_t *tree)
 {
+	size_t height_val;
+
 	if (tree == NULL)
 		return (0);
 
-	size_t height = binary_tree_height(tree);
-	size_t size = binary_tree_size(tree);
-
-	size_t perfect_size = 1;
-	for (size_t i = 0; i < height; i++)
-		perfect_size *= 2;
-
-	return (size == perfect_size);
+	height_val = binary_tree_height(tree);
+	return (is_perfect_recursive(tree, height_val, 0));
 }
 
